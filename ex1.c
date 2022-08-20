@@ -22,37 +22,22 @@ typedef struct lista{
 typedef struct registro{
     int valor1;
     int valor2;
+    int qtd_ligacoes;
+    int *ligacoes;
     struct registro *ant;
     struct registro *prox;
 }registro;
 
-typedef struct lista_adj{
-    int qtd;
-    struct registro_adj *inicio;
-    struct registro_adj *fim;
-
-}lista_adj;
-
-typedef struct registro_adj{
-    int valor;
-    int qtd_ligacoes;
-    int *ligacoes;
-    struct registro_adj *ant;
-    struct registro_adj *prox;
-}registro_adj;
 
 registro *aloca_registro();
 lista *aloca_lista();
 void incluir_final(lista *l1, int n1,int n2);
 void mostrar_lista(lista *l1);
 void monta_matriz(lista *lista_pares);
-lista_adj *aloca_lista_adj();
-registro_adj *aloca_registro_adj();
+void conta_duppes(lista *lista_pares);
 void monta_lista_adj(lista *lista_pares);
-void mostrar_lista_adj(lista_adj *l1);
-void incluir_final_adj(lista_adj *l1, int n, int *vetor);
-
-
+void monta_arrays_ligacoes(lista *lista_pares);
+void mostrar_lista_adj(lista *l1);
 
 
 
@@ -117,39 +102,51 @@ void monta_matriz(lista *lista_pares){
 }
 
 void monta_lista_adj(lista *lista_pares){
-    lista_adj *lista = aloca_lista_adj();
-    registro_adj *aux = lista->inicio;
-    registro *aux_pares = lista_pares->inicio;
-    /*for(int i = 0; i < lista_pares->qtd; i++){
-        if(aux->valor == aux_pares->valor1 && aux_pares!= NULL ){
-            while(aux->valor == aux_pares->valor1){
-                aux->qtd_ligacoes++;
-                aux_pares = aux_pares->prox;
-                printf("achei um numero repetido e aumentei as ligações para %d",aux->qtd_ligacoes);
-            }
-        }
-        else{
-            incluir_final_adj(lista,aux_pares->valor1,NULL);
-            aux = aux->prox;
-            aux_pares = aux_pares->prox;
-        }
-        
-    }*/
-    while(aux_pares!= NULL){
-        if(aux_pares->valor1 == aux->valor){
-            aux->qtd_ligacoes++;
-            aux_pares = aux_pares->prox;
-            printf("achei um numero repetido e aumentei as ligações para %d",aux->qtd_ligacoes);
-        }
-        else{
-            incluir_final_adj(lista,aux_pares->valor1,NULL);
-            aux_pares = aux_pares->prox;
-            aux = aux->prox;
-        }
-    } 
-    mostrar_lista_adj(lista);
+    registro *aux = lista_pares->inicio;
+    conta_duppes(lista_pares);
+    printf("%d duplicatas encontradas", aux->qtd_ligacoes);
+    monta_arrays_ligacoes(lista_pares);
+    mostrar_lista_adj(lista_pares);
+
 }
 
+void conta_duppes(lista *lista_pares){
+    registro *aux1 = lista_pares->inicio;
+    registro *aux2 =  aux1->prox;
+    while(aux2 != NULL){
+        if(aux1->valor1 == aux2->valor1){
+            aux1->qtd_ligacoes++;
+            aux2 =aux2->prox;
+        }
+        else{
+            aux1 = aux1->prox;
+        }
+    }
+}
+
+void monta_arrays_ligacoes(lista *lista_pares){
+    printf("\nentrei na monta arrays");
+    registro *aux = lista_pares->inicio;
+    registro *aux2 = aux->prox;
+    while(aux2!=NULL){
+        printf("\nentrei no primeiro while");
+        int i = 1;
+        aux->ligacoes = (int*)malloc(aux->qtd_ligacoes*sizeof(int));
+        aux->ligacoes[0]= aux->valor2;
+        while(aux->valor1 == aux2->valor1&& i<aux->qtd_ligacoes){
+            printf("\nentrei no seguindo while");
+            aux->ligacoes[i] = aux2->valor2;
+            i++;
+            aux2= aux2->prox;
+            
+        }
+        aux = aux2;
+
+        printf("sai do segundo while");
+
+    }
+
+}
 
 lista *aloca_lista(){
     lista *l;
@@ -162,17 +159,6 @@ registro *aloca_registro(){
     novo_reg = (registro*)calloc(1,sizeof(registro));
     return novo_reg;
 }
-lista_adj *aloca_lista_adj(){
-    lista_adj *l;
-    l = (lista_adj *)calloc(1,sizeof(lista_adj));
-    return l;
-}
-
-registro_adj *aloca_registro_adj(){
-    registro_adj *novo_reg;
-    novo_reg = (registro_adj*)calloc(1,sizeof(registro_adj));
-    return novo_reg;
-}
 
 
 void incluir_final(lista *l1, int n1, int n2){
@@ -181,6 +167,7 @@ void incluir_final(lista *l1, int n1, int n2){
     novo = aloca_registro();
     novo->valor1 = n1;
     novo->valor2 = n2;
+    novo->qtd_ligacoes = 1;
     if(l1->inicio == NULL){
         l1->inicio = novo;
         l1->qtd++;
@@ -194,31 +181,6 @@ void incluir_final(lista *l1, int n1, int n2){
         novo->ant = aux;
         l1->fim = novo;
         l1->qtd++;
-    }
-}
-
-void incluir_final_adj(lista_adj *l1, int n, int *vetor){
-    printf("entrei no incluir no final tentando adicionar o valor de %d\n",n);
-    registro_adj *novo,*aux;
-    novo = aloca_registro_adj();
-    novo->valor = n;
-    novo->ligacoes = vetor;
-    if(l1->inicio == NULL){
-        l1->inicio = novo;
-        l1->qtd++;
-        printf("inicio estava nulo e inclui o valor de %d na lista e ela ficou com o tamanho %d\n",n,l1->qtd);
-    }
-    else{
-        aux = l1->inicio;
-        while(aux->prox != NULL){
-            aux = aux->prox;
-        }
-        aux->prox = novo;
-        novo->ant = aux;
-        l1->fim = novo;
-        l1->qtd++;
-        printf("inclui o valor de %d na lista e ela ficou com o tamanho %d\n",n,l1->qtd);
-
     }
 }
 
@@ -238,17 +200,18 @@ void mostrar_lista(lista *l1){
         }
     }
 }
-
-void mostrar_lista_adj(lista_adj *l1){
+void mostrar_lista_adj(lista *l1){
     if(l1->inicio == NULL){
         printf("lista vazia\n");
     }
     else{
-        registro_adj *aux;
+        registro *aux;
         aux = l1->inicio;
-        printf("Lista: \n");
         while(aux!=NULL){
-            printf("%d \n",aux->valor);
+            printf("%d ->\n",aux->valor1);
+            for(int i =0; i<aux->qtd_ligacoes;i++){
+                printf("%d,",aux->ligacoes[i]);
+            }
             aux = aux->prox;
         }
     }
