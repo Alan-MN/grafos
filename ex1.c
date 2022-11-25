@@ -34,10 +34,6 @@ lista *aloca_lista();
 void incluir_final(lista *l1, int n1,int n2);
 void mostrar_lista(lista *l1);
 void monta_matriz(lista *lista_pares);
-void conta_duppes(lista *lista_pares);
-void monta_lista_adj(lista *lista_pares);
-void monta_arrays_ligacoes(lista *lista_pares);
-void mostrar_lista_adj(lista *l1);
 
 
 
@@ -57,14 +53,12 @@ void main(){
     mostrar_lista(lista_pares);
     printf("\nMatriz: (50x50)\n");
     monta_matriz(lista_pares);
-    printf("\nLista: \n");
-    monta_lista_adj(lista_pares);
 }
 
 
 
 void monta_matriz(lista *lista_pares){
-    int tam = 50;
+    int tam = 20;
     int *matriz = (int*)malloc(tam * tam * sizeof(int));
 
     for(int i = 0; i < tam; i++){
@@ -101,52 +95,8 @@ void monta_matriz(lista *lista_pares){
     free(matriz);
 }
 
-void monta_lista_adj(lista *lista_pares){
-    registro *aux = lista_pares->inicio;
-    conta_duppes(lista_pares);
-    printf("%d duplicatas encontradas", aux->qtd_ligacoes);
-    monta_arrays_ligacoes(lista_pares);
-    mostrar_lista_adj(lista_pares);
 
-}
 
-void conta_duppes(lista *lista_pares){
-    registro *aux1 = lista_pares->inicio;
-    registro *aux2 =  aux1->prox;
-    while(aux2 != NULL){
-        if(aux1->valor1 == aux2->valor1){
-            aux1->qtd_ligacoes++;
-            aux2 =aux2->prox;
-        }
-        else{
-            aux1 = aux1->prox;
-        }
-    }
-}
-
-void monta_arrays_ligacoes(lista *lista_pares){
-    printf("\nentrei na monta arrays");
-    registro *aux = lista_pares->inicio;
-    registro *aux2 = aux->prox;
-    while(aux2!=NULL){
-        printf("\nentrei no primeiro while");
-        int i = 1;
-        aux->ligacoes = (int*)malloc(aux->qtd_ligacoes*sizeof(int));
-        aux->ligacoes[0]= aux->valor2;
-        while(aux->valor1 == aux2->valor1&& i<aux->qtd_ligacoes){
-            printf("\nentrei no seguindo while");
-            aux->ligacoes[i] = aux2->valor2;
-            i++;
-            aux2= aux2->prox;
-            
-        }
-        aux = aux2;
-
-        printf("sai do segundo while");
-
-    }
-
-}
 
 lista *aloca_lista(){
     lista *l;
@@ -196,22 +146,6 @@ void mostrar_lista(lista *l1){
         printf("pares recebidos: \n");
         while(aux!=NULL){
             printf("%d %d \n",aux->valor1, aux->valor2);
-            aux = aux->prox;
-        }
-    }
-}
-void mostrar_lista_adj(lista *l1){
-    if(l1->inicio == NULL){
-        printf("lista vazia\n");
-    }
-    else{
-        registro *aux;
-        aux = l1->inicio;
-        while(aux!=NULL){
-            printf("%d ->\n",aux->valor1);
-            for(int i =0; i<aux->qtd_ligacoes;i++){
-                printf("%d,",aux->ligacoes[i]);
-            }
             aux = aux->prox;
         }
     }
